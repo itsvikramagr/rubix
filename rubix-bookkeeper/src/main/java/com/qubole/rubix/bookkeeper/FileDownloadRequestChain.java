@@ -13,6 +13,7 @@
 package com.qubole.rubix.bookkeeper;
 
 import com.google.common.base.Throwables;
+import com.qubole.rubix.core.CachingFileSystem;
 import com.qubole.rubix.core.ReadRequest;
 import com.qubole.rubix.core.ReadRequestChain;
 import com.qubole.rubix.core.ReadRequestChainStats;
@@ -120,9 +121,13 @@ public class FileDownloadRequestChain extends ReadRequestChain
 
     FSDataInputStream inputStream = null;
     FileChannel fileChannel = null;
+    FileSystem fileSystem = remoteFileSystem;
+    if (fileSystem instanceof CachingFileSystem) {
+      fileSystem = ((CachingFileSystem) remoteFileSystem).getRemoteFileSystem();
+    }
 
     try {
-      inputStream = remoteFileSystem.open(new Path(remotePath), CacheConfig.getBlockSize(conf));
+      inputStream = fileSystem.open(new Path(remotePath), CacheConfig.getBlockSize(conf));
       fileChannel = new FileOutputStream(new RandomAccessFile(file, "rw").getFD()).getChannel();
       for (ReadRequest readRequest : readRequests) {
         if (isCancelled()) {
@@ -154,7 +159,7 @@ public class FileDownloadRequestChain extends ReadRequestChain
         inputStream.close();
       }
 
-      remoteFileSystem.close();
+      fileSystem.close();
     }
   }
 

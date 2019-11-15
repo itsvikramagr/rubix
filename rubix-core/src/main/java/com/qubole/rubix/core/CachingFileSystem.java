@@ -16,6 +16,7 @@ import com.google.common.base.Throwables;
 import com.qubole.rubix.spi.BookKeeperFactory;
 import com.qubole.rubix.spi.CacheConfig;
 import com.qubole.rubix.spi.RetryingBookkeeperClient;
+import com.qubole.rubix.spi.thrift.BookKeeperService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -54,7 +55,7 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
   private Path workingDir;
 
   private static CachingFileSystemStats statsMBean;
-  public BookKeeperFactory bookKeeperFactory = new BookKeeperFactory();
+  public static BookKeeperFactory bookKeeperFactory = new BookKeeperFactory();
 
   static {
     MBeanExporter exporter = new MBeanExporter(ManagementFactory.getPlatformMBeanServer());
@@ -80,6 +81,16 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
       log.error("cannot instantiate base filesystem ", e);
       Throwables.propagate(e);
     }
+  }
+
+  public FileSystem getRemoteFileSystem()
+  {
+    return fs;
+  }
+
+  public static void setLocalBookKeeper(BookKeeperService.Iface bookKeeper)
+  {
+    bookKeeperFactory = new BookKeeperFactory(bookKeeper);
   }
 
   public abstract String getScheme();
@@ -237,7 +248,7 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
   @Override
   public BlockLocation[] getFileBlockLocations(FileStatus file, long start, long len) throws IOException
   {
-    if (cacheSkipped) {
+    if (cacheSkipped || (CacheConfig.isEmbeddedModeEnabled(getConf()) && !bookKeeperFactory.isBookKeeperInitialized())) {
       return fs.getFileBlockLocations(file, start, len);
     }
 

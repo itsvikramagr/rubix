@@ -74,6 +74,11 @@ public class BookKeeperFactory
     return null;
   }
 
+  public boolean isBookKeeperInitialized()
+  {
+    return bookKeeper != null;
+  }
+
   public RetryingBookkeeperClient createBookKeeperClient(Configuration conf) throws TTransportException
   {
     if (bookKeeper == null) {
