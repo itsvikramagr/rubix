@@ -39,13 +39,18 @@ public class BookKeeperFactory
 
   public RetryingBookkeeperClient createBookKeeperClient(String host, Configuration conf) throws TTransportException
   {
-    final int socketTimeout = CacheConfig.getServerSocketTimeout(conf);
-    final int connectTimeout = CacheConfig.getServerConnectTimeout(conf);
+    if (bookKeeper != null) {
+      return new LocalBookKeeperClient(null, bookKeeper);
+    }
+    else {
+      final int socketTimeout = CacheConfig.getServerSocketTimeout(conf);
+      final int connectTimeout = CacheConfig.getServerConnectTimeout(conf);
 
-    TTransport transport = new TSocket(host, CacheConfig.getServerPort(conf), socketTimeout, connectTimeout);
-    transport.open();
-    RetryingBookkeeperClient retryingBookkeeperClient = new RetryingBookkeeperClient(transport, CacheConfig.getMaxRetries(conf));
-    return retryingBookkeeperClient;
+      TTransport transport = new TSocket(host, CacheConfig.getServerPort(conf), socketTimeout, connectTimeout);
+      transport.open();
+      RetryingBookkeeperClient retryingBookkeeperClient = new RetryingBookkeeperClient(transport, CacheConfig.getMaxRetries(conf));
+      return retryingBookkeeperClient;
+    }
   }
 
   public RetryingBookkeeperClient createBookKeeperClient(String host, Configuration conf, int maxRetries,
@@ -81,12 +86,6 @@ public class BookKeeperFactory
 
   public RetryingBookkeeperClient createBookKeeperClient(Configuration conf) throws TTransportException
   {
-    if (bookKeeper == null) {
-      return createBookKeeperClient("localhost", conf);
-    }
-    else {
-      TTransport transport = null;
-      return new LocalBookKeeperClient(transport, bookKeeper);
-    }
+    return createBookKeeperClient("localhost", conf);
   }
 }
