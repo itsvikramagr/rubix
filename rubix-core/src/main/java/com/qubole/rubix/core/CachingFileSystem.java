@@ -55,7 +55,7 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
   private Path workingDir;
 
   private static CachingFileSystemStats statsMBean;
-  public static BookKeeperFactory bookKeeperFactory = new BookKeeperFactory();
+  public static BookKeeperFactory bookKeeperFactory;
 
   static {
     MBeanExporter exporter = new MBeanExporter(ManagementFactory.getPlatformMBeanServer());
@@ -76,6 +76,9 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
   {
     try {
       this.fs = getTypeParameterClass().newInstance();
+      if (bookKeeperFactory == null) {
+        bookKeeperFactory = new BookKeeperFactory();
+      }
     }
     catch (InstantiationException | IllegalAccessException e) {
       log.error("cannot instantiate base filesystem ", e);

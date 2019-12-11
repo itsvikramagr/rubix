@@ -122,14 +122,18 @@ public class FileDownloadRequestChain extends ReadRequestChain
     FSDataInputStream inputStream = null;
     FileChannel fileChannel = null;
     FileSystem fileSystem = remoteFileSystem;
+    log.info("ABHISHEK 1st Original Filesystem " + fileSystem.toString());
     if (fileSystem instanceof CachingFileSystem) {
+      log.info("ABHISHEK Instace of CachingFileSystem");
       fileSystem = ((CachingFileSystem) remoteFileSystem).getRemoteFileSystem();
+      log.info("ABHISHEK Original Filesystem " + fileSystem.toString());
     }
 
     try {
       inputStream = fileSystem.open(new Path(remotePath), CacheConfig.getBlockSize(conf));
       fileChannel = new FileOutputStream(new RandomAccessFile(file, "rw").getFD()).getChannel();
       for (ReadRequest readRequest : readRequests) {
+        log.info("ABHISHEK Processing Request " + readRequest.getActualReadLength());
         if (isCancelled()) {
           log.info("Request Cancelled for " + readRequest.getBackendReadStart());
           propagateCancel(this.getClass().getName());

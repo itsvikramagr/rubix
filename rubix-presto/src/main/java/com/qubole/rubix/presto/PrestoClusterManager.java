@@ -65,7 +65,7 @@ public class PrestoClusterManager extends ClusterManager
   public void initialize(Configuration conf)
   {
     super.initialize(conf);
-    this.serverPort = conf.getInt(serverPortConf, serverPort);
+    //this.serverPort = conf.getInt(serverPortConf, serverPort);
     this.serverAddress = ClusterUtil.getMasterHostname(conf);
     ExecutorService executor = Executors.newSingleThreadExecutor();
     nodesCache = CacheBuilder.newBuilder()
@@ -79,6 +79,8 @@ public class PrestoClusterManager extends ClusterManager
             try {
               URL allNodesRequest = getNodeUrl();
               URL failedNodesRequest = getFailedNodeUrl();
+
+              log.info("ABHISHEK ALL NODES URL " + allNodesRequest.toURI().toString());
 
               HttpURLConnection allHttpCon = (HttpURLConnection) allNodesRequest.openConnection();
               allHttpCon.setConnectTimeout(500); //ms

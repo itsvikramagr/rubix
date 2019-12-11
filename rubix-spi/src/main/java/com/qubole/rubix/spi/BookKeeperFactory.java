@@ -40,9 +40,11 @@ public class BookKeeperFactory
   public RetryingBookkeeperClient createBookKeeperClient(String host, Configuration conf) throws TTransportException
   {
     if (bookKeeper != null) {
+      log.info("ABHISHEK Creating LocalBookKeeper");
       return new LocalBookKeeperClient(null, bookKeeper);
     }
     else {
+      log.info("ABHISHEK Creating RemoteBookKeeper");
       final int socketTimeout = CacheConfig.getServerSocketTimeout(conf);
       final int connectTimeout = CacheConfig.getServerConnectTimeout(conf);
 

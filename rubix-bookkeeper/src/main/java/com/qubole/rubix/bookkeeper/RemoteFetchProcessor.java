@@ -49,7 +49,16 @@ public class RemoteFetchProcessor extends AbstractScheduledService
 
   public RemoteFetchProcessor(BookKeeper bookKeeper, MetricRegistry metrics, Configuration conf)
   {
-    this.conf = conf;
+    // Initializing a new Config object so that it doesn't interfere with the existing one
+    this.conf = new Configuration(conf);
+
+    // Disabling FileSystem level cache for all the schemes.
+    this.conf.setBoolean("fs.s3.impl.disable.cache", false);
+    this.conf.setBoolean("fs.s3n.impl.disable.cache", false);
+    this.conf.setBoolean("fs.s3a.impl.disable.cache", false);
+    this.conf.setBoolean("fs.wasb.impl.disable.cache", false);
+    this.conf.setBoolean("fs.gs.impl.disable.cache", false);
+
     this.bookKeeper = bookKeeper;
     this.processQueue = new ConcurrentLinkedQueue<FetchRequest>();
     this.metrics = metrics;

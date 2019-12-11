@@ -64,8 +64,16 @@ public class WorkerBookKeeper extends BookKeeper
       throws BookKeeperInitializationException
   {
     super(conf, bookKeeperMetrics, ticker);
-    this.bookKeeperFactory = factory;
+    if (factory == null) {
+      this.bookKeeperFactory = new BookKeeperFactory(this);
+      log.info("ABHISHEK Initializing bookkeeperfactory");
+    }
+    else {
+      this.bookKeeperFactory = factory;
+    }
+
     this.masterHostname = ClusterUtil.getMasterHostname(conf);
+    log.info("ABHISHEK Master Host Name " + masterHostname + " IS Bookkeeper client initialize " + factory.isBookKeeperInitialized());
 
     initializeWorker(conf, metrics, ticker, factory);
   }
@@ -110,6 +118,7 @@ public class WorkerBookKeeper extends BookKeeper
     // In case of embedded mode, the engine might have set this value.
     if (CacheConfig.getCurrentNodeHostName(conf) != null) {
       nodeName = CacheConfig.getCurrentNodeHostName(conf);
+      log.info("ABHISHEK Current Noode Name " + nodeName);
       return;
     }
     try {
@@ -164,6 +173,7 @@ public class WorkerBookKeeper extends BookKeeper
           public List<ClusterNode> load(String s) throws Exception
           {
             if (client == null) {
+              log.info("ABHISHEK Creating Client for " + masterHostname + " IS Bookkeeper client initialize " + bookKeeperFactory.isBookKeeperInitialized());
               client = createBookKeeperClientWithRetry(bookKeeperFactory, masterHostname, conf);
             }
             return client.getClusterNodes();
