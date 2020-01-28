@@ -65,7 +65,7 @@ public class PrestoClusterManager extends ClusterManager
   public void initialize(Configuration conf)
   {
     super.initialize(conf);
-    //this.serverPort = conf.getInt(serverPortConf, serverPort);
+    this.serverPort = conf.getInt(serverPortConf, serverPort);
     this.serverAddress = ClusterUtil.getMasterHostname(conf);
     ExecutorService executor = Executors.newSingleThreadExecutor();
     nodesCache = CacheBuilder.newBuilder()
@@ -206,6 +206,11 @@ public class PrestoClusterManager extends ClusterManager
   public ClusterType getClusterType()
   {
     return ClusterType.PRESTO_CLUSTER_MANAGER;
+  }
+
+  public static void setPrestoServerPort(Configuration conf, int port)
+  {
+    conf.setInt(serverPortConf, port);
   }
 
   private URL getNodeUrl()

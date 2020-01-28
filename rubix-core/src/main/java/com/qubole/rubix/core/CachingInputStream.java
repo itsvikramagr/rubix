@@ -108,7 +108,7 @@ public class CachingInputStream extends FSInputStream
       this.lastModified = fileInfo.lastModified;
     }
     catch (Exception ex) {
-      log.error(String.format("Could not get FileInfo for %s. Fetching FileStatus from remote file system :", backendPath.toString(), ex.toString()));
+      log.error(String.format("Could not get FileInfo for %s. Fetching FileStatus from remote file system :", backendPath.toString()), ex);
       FileStatus fileStatus = parentFs.getFileStatus(backendPath);
       this.fileSize = fileStatus.getLen();
       this.lastModified = fileStatus.getModificationTime();
