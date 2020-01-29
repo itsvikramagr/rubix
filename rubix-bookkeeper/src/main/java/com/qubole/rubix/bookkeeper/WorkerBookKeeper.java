@@ -176,7 +176,16 @@ public class WorkerBookKeeper extends BookKeeper
               log.info("ABHISHEK Creating Client for " + masterHostname + " IS Bookkeeper client initialize " + bookKeeperFactory.isBookKeeperInitialized());
               client = createBookKeeperClientWithRetry(bookKeeperFactory, masterHostname, conf);
             }
-            return client.getClusterNodes();
+            try {
+              return client.getClusterNodes();
+            }
+            catch (Exception e) {
+              client.close();
+              throw e;
+            }
+            finally {
+              client = null;
+            }
           }
         });
   }
