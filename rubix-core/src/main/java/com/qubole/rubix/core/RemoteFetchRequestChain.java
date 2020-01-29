@@ -39,7 +39,7 @@ public class RemoteFetchRequestChain extends ReadRequestChain
   long fileSize;
 
   public RemoteFetchRequestChain(String remotePath, FileSystem remoteFileSystem, String remoteNodeLocation,
-                                 Configuration conf, long lastModified, long fileSize)
+                                 Configuration conf, long lastModified, long fileSize, BookKeeperFactory bookKeeperFactory)
   {
     this.remotePath = remotePath;
     this.remoteFileSystem = remoteFileSystem;
@@ -47,7 +47,7 @@ public class RemoteFetchRequestChain extends ReadRequestChain
     this.conf = conf;
     this.lastModified = lastModified;
     this.fileSize = fileSize;
-    this.bookKeeperFactory = new BookKeeperFactory();
+    this.bookKeeperFactory = bookKeeperFactory;
   }
 
   @Override
@@ -95,7 +95,7 @@ public class RemoteFetchRequestChain extends ReadRequestChain
     if (CacheConfig.isDummyModeEnabled(conf)) {
       RetryingBookkeeperClient bookKeeperClient = null;
       try {
-        bookKeeperClient = new BookKeeperFactory().createBookKeeperClient(remoteNodeLocation, conf);
+        bookKeeperClient = bookKeeperFactory.createBookKeeperClient(remoteNodeLocation, conf);
         for (ReadRequest readRequest : readRequests) {
           long startBlock = toBlock(readRequest.getBackendReadStart());
           long endBlock = toBlock(readRequest.getBackendReadEnd() - 1) + 1;

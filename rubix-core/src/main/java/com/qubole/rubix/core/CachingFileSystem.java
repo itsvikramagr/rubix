@@ -282,7 +282,7 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
           BlockLocation[] blockLocations = new BlockLocation[(int) Math.ceil((double) file.getLen() / splitSize)];
           int blockNumber = 0;
 
-          RetryingBookkeeperClient client = new BookKeeperFactory().createBookKeeperClient(conf);
+          RetryingBookkeeperClient client = bookKeeperFactory.createBookKeeperClient(conf);
 
           for (long i = 0; i < file.getLen(); i = i + splitSize) {
             long end = i + splitSize;

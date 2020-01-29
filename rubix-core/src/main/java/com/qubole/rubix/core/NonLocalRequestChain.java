@@ -43,7 +43,6 @@ public class NonLocalRequestChain extends ReadRequestChain
   BookKeeperFactory bookKeeperFactory;
   RetryingBookkeeperClient bookKeeperClient;
   NonLocalReadRequestChain nonLocalReadRequestChain;
-  DirectReadRequestChain directReadRequestChain;
   RemoteFetchRequestChain remoteFetchRequestChain;
   FileSystem.Statistics statistics;
   boolean needDirectReadRequest;
@@ -51,12 +50,10 @@ public class NonLocalRequestChain extends ReadRequestChain
   long startBlockForCacheStatus;
   long endBlockForCacheStatus;
 
-  int directRead;
-
   public NonLocalRequestChain(String remoteNodeName, long fileSize, long lastModified, Configuration conf,
                               FileSystem remoteFileSystem, String remoteFilePath,
                               boolean strictMode, FileSystem.Statistics statistics, long startBlock,
-                              long endBlock)
+                              long endBlock, BookKeeperFactory bookKeeperFactory)
   {
     this.remoteNodeName = remoteNodeName;
     this.remoteFileSystem = remoteFileSystem;
@@ -69,7 +66,7 @@ public class NonLocalRequestChain extends ReadRequestChain
     this.startBlockForCacheStatus = startBlock;
     this.endBlockForCacheStatus = endBlock;
 
-    this.bookKeeperFactory = new BookKeeperFactory();
+    this.bookKeeperFactory = bookKeeperFactory;
     this.blockSize = CacheConfig.getBlockSize(conf);
 
     try {
@@ -127,7 +124,7 @@ public class NonLocalRequestChain extends ReadRequestChain
       needDirectReadRequest = true;
       if (remoteFetchRequestChain == null) {
         remoteFetchRequestChain = new RemoteFetchRequestChain(remoteFilePath, remoteFileSystem, remoteNodeName,
-            conf, lastModified, fileSize);
+            conf, lastModified, fileSize, bookKeeperFactory);
       }
       remoteFetchRequestChain.addReadRequest(readRequest);
     }

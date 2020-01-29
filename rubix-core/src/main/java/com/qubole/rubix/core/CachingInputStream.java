@@ -402,7 +402,7 @@ public class CachingInputStream extends FSInputStream
               NonLocalRequestChain nonLocalRequestChain =
                   new NonLocalRequestChain(remoteLocation, fileSize, lastModified,
                       conf, remoteFileSystem, remotePath, strictMode,
-                      statistics, nextReadBlock, endBlock);
+                      statistics, nextReadBlock, endBlock, new BookKeeperFactory());
               nonLocalAsyncRequests.put(remoteLocation, nonLocalRequestChain);
             }
             nonLocalAsyncRequests.get(remoteLocation).addReadRequest(readRequest);
@@ -436,7 +436,7 @@ public class CachingInputStream extends FSInputStream
 
             if (remoteFetchRequestChain == null) {
               remoteFetchRequestChain = new RemoteFetchRequestChain(remotePath, remoteFileSystem,
-                  "localhost", conf, lastModified, fileSize);
+                  "localhost", conf, lastModified, fileSize, bookKeeperFactory);
             }
 
             directReadRequestChain.addReadRequest(readRequest);
@@ -448,7 +448,7 @@ public class CachingInputStream extends FSInputStream
               affixBuffer = new byte[blockSize];
             }
             if (remoteReadRequestChain == null) {
-              remoteReadRequestChain = new RemoteReadRequestChain(getParentDataInputStream(), localPath, directWriteBuffer, affixBuffer);
+              remoteReadRequestChain = new RemoteReadRequestChain(getParentDataInputStream(), localPath, directWriteBuffer, affixBuffer, bookKeeperFactory);
             }
             remoteReadRequestChain.addReadRequest(readRequest);
           }

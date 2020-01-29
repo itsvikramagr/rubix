@@ -82,10 +82,16 @@ public class LocalDataTransferServer extends Configured implements Tool
 
   public static void startServer(Configuration conf, MetricRegistry metricRegistry)
   {
+    startServer(conf, metricRegistry, null);
+  }
+
+  // In embedded mode, this is called directly with local bookKeeper object
+  public static void startServer(Configuration conf, MetricRegistry metricRegistry, BookKeeper bookKeeper)
+  {
     metrics = metricRegistry;
     registerMetrics(conf);
 
-    localServer = new LocalServer(conf);
+    localServer = new LocalServer(conf, bookKeeper);
     new Thread(localServer).start();
   }
 
@@ -137,10 +143,17 @@ public class LocalDataTransferServer extends Configured implements Tool
   {
     static ServerSocketChannel listener;
     Configuration conf;
+    BookKeeperFactory bookKeeperFactory;
 
-    public LocalServer(Configuration conf)
+    public LocalServer(Configuration conf, BookKeeper bookKeeper)
+    {
+      this(conf, new BookKeeperFactory(bookKeeper));
+    }
+
+    public LocalServer(Configuration conf, BookKeeperFactory bookKeeperFactory)
     {
       this.conf = conf;
+      this.bookKeeperFactory = bookKeeperFactory;
     }
 
     @Override
@@ -154,7 +167,7 @@ public class LocalDataTransferServer extends Configured implements Tool
         log.info("Listening on port " + port);
         while (true) {
           SocketChannel clientSocket = listener.accept();
-          ClientServiceThread cliThread = new ClientServiceThread(clientSocket, conf);
+          ClientServiceThread cliThread = new ClientServiceThread(clientSocket, conf, bookKeeperFactory);
           threadPool.execute(cliThread);
         }
       }
@@ -186,20 +199,20 @@ public class LocalDataTransferServer extends Configured implements Tool
       extends Thread
   {
     SocketChannel localDataTransferClient;
-    RetryingBookkeeperClient bookKeeperClient;
     Configuration conf;
+    BookKeeperFactory bookKeeperFactory;
 
-    ClientServiceThread(SocketChannel s, Configuration conf)
+    ClientServiceThread(SocketChannel s, Configuration conf, BookKeeperFactory bookKeeperFactory)
     {
       localDataTransferClient = s;
       this.conf = conf;
+      this.bookKeeperFactory = bookKeeperFactory;
     }
 
     public void run()
     {
       try {
         log.debug("Connected to node - " + localDataTransferClient.getLocalAddress());
-        BookKeeperFactory bookKeeperFactory = new BookKeeperFactory();
         ByteBuffer dataInfo = ByteBuffer.allocate(CacheConfig.getMaxHeaderSize(conf));
 
         int read = localDataTransferClient.read(dataInfo);
@@ -213,8 +226,9 @@ public class LocalDataTransferServer extends Configured implements Tool
         int readLength = header.getReadLength();
         String remotePath = header.getFilePath();
         log.debug(String.format("Trying to read from %s at offset %d and length %d for client %s", remotePath, offset, readLength, localDataTransferClient.getRemoteAddress()));
+        RetryingBookkeeperClient bookKeeperClient;
         try {
-          this.bookKeeperClient = bookKeeperFactory.createBookKeeperClient(conf);
+          bookKeeperClient = bookKeeperFactory.createBookKeeperClient(conf);
         }
         catch (Exception e) {
           throw new Exception("Could not create BookKeeper Client " + Throwables.getStackTraceAsString(e));
@@ -249,7 +263,7 @@ public class LocalDataTransferServer extends Configured implements Tool
           }
         }
 
-        int nread = readDataFromCachedFile(remotePath, offset, readLength);
+        int nread = readDataFromCachedFile(bookKeeperClient, remotePath, offset, readLength);
 
         if (bookKeeperClient != null) {
           bookKeeperClient.close();
@@ -275,7 +289,7 @@ public class LocalDataTransferServer extends Configured implements Tool
       }
     }
 
-    private int readDataFromCachedFile(String remotePath, long offset, int readLength) throws IOException, TException
+    private int readDataFromCachedFile(RetryingBookkeeperClient bookKeeperClient, String remotePath, long offset, int readLength) throws IOException, TException
     {
       FileChannel fc = null;
       int nread = 0;

@@ -17,7 +17,6 @@ import com.qubole.rubix.core.CachingFileSystem;
 import com.qubole.rubix.core.ReadRequest;
 import com.qubole.rubix.core.ReadRequestChain;
 import com.qubole.rubix.core.ReadRequestChainStats;
-import com.qubole.rubix.spi.BookKeeperFactory;
 import com.qubole.rubix.spi.CacheConfig;
 import com.qubole.rubix.spi.CacheUtil;
 import com.qubole.rubix.spi.thrift.SetCachedRequest;
@@ -46,7 +45,6 @@ public class FileDownloadRequestChain extends ReadRequestChain
   private String remotePath;
   private long fileSize;
   private long lastModified;
-  private BookKeeperFactory bookKeeperFactory;
   private int totalRequestedRead;
   private int warmupPenalty;
   private int blockSize;
@@ -67,7 +65,6 @@ public class FileDownloadRequestChain extends ReadRequestChain
     this.remotePath = remotePath;
     this.fileSize = fileSize;
     this.lastModified = lastModified;
-    this.bookKeeperFactory = new BookKeeperFactory();
     this.blockSize = CacheConfig.getBlockSize(conf);
     this.directBuffer = directBuffer;
   }

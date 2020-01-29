@@ -34,7 +34,9 @@ public class BookKeeperFactory
 
   public BookKeeperFactory(BookKeeperService.Iface bookKeeper)
   {
-    this.bookKeeper = bookKeeper;
+    if (bookKeeper != null) {
+      this.bookKeeper = bookKeeper;
+    }
   }
 
   public RetryingBookkeeperClient createBookKeeperClient(String host, Configuration conf) throws TTransportException
