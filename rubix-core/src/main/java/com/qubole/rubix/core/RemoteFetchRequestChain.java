@@ -12,7 +12,6 @@
  */
 package com.qubole.rubix.core;
 
-import com.google.common.base.Throwables;
 import com.qubole.rubix.spi.BookKeeperFactory;
 import com.qubole.rubix.spi.CacheConfig;
 import com.qubole.rubix.spi.RetryingBookkeeperClient;
@@ -62,7 +61,7 @@ public class RemoteFetchRequestChain extends ReadRequestChain
     try {
       client = bookKeeperFactory.createBookKeeperClient(remoteNodeLocation, conf);
       for (ReadRequest request : readRequests) {
-        log.info("RemoteFetchRequest from : " + remoteNodeLocation + " Start : " + request.backendReadStart +
+        log.debug("RemoteFetchRequest from : " + remoteNodeLocation + " Start : " + request.backendReadStart +
                 " of length " + request.getBackendReadLength());
         client.readData(new ReadDataRequest(remotePath, request.backendReadStart, request.getBackendReadLength(),
             fileSize, lastModified));
@@ -76,10 +75,10 @@ public class RemoteFetchRequestChain extends ReadRequestChain
         }
       }
       catch (IOException ex) {
-        log.error("Could not close bookkeeper client. Exception: " + ex.toString());
+        log.error("Could not close bookkeeper client. Exception: ", ex);
       }
     }
-    log.info("Send request to remote took " + (System.currentTimeMillis() - startTime) + " :msecs");
+    log.debug("Send request to remote took " + (System.currentTimeMillis() - startTime) + " :msecs");
 
     return 0;
   }
@@ -106,7 +105,7 @@ public class RemoteFetchRequestChain extends ReadRequestChain
         }
       }
       catch (Exception e) {
-        log.error("Dummy Mode: Could not update Cache Status for Remote Fetch Request " + Throwables.getStackTraceAsString(e));
+        log.error("Dummy Mode: Could not update Cache Status for Remote Fetch Request ", e);
       }
       finally {
         try {
@@ -115,7 +114,7 @@ public class RemoteFetchRequestChain extends ReadRequestChain
           }
         }
         catch (IOException ex) {
-          log.error("Dummy Mode: Could not close bookkeeper client. Exception: " + ex.toString());
+          log.error("Dummy Mode: Could not close bookkeeper client. Exception: ", ex);
         }
       }
     }

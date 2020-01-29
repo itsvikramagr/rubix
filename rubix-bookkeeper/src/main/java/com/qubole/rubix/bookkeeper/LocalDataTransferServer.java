@@ -164,7 +164,7 @@ public class LocalDataTransferServer extends Configured implements Tool
       try {
         listener = ServerSocketChannel.open();
         listener.bind(new InetSocketAddress(port));
-        log.info("Listening on port " + port);
+        log.info("Started LocalDataTransferServer on port " + port);
         while (true) {
           SocketChannel clientSocket = listener.accept();
           ClientServiceThread cliThread = new ClientServiceThread(clientSocket, conf, bookKeeperFactory);
@@ -172,10 +172,10 @@ public class LocalDataTransferServer extends Configured implements Tool
         }
       }
       catch (AsynchronousCloseException e) {
-        log.info("Stopping Local Transfer server");
+        log.warn("Stopping Local Transfer server", e);
       }
       catch (IOException e) {
-        log.error(String.format("Error starting Local Transfer server %s", e));
+        log.error("Error starting Local Transfer server", e);
       }
     }
 
@@ -190,7 +190,7 @@ public class LocalDataTransferServer extends Configured implements Tool
         listener.close();
       }
       catch (IOException e) {
-        log.error(String.format("Error stopping Local Transfer server %s", e));
+        log.error("Error stopping Local Transfer server", e);
       }
     }
   }
@@ -284,7 +284,7 @@ public class LocalDataTransferServer extends Configured implements Tool
           localDataTransferClient.close();
         }
         catch (IOException e) {
-          log.info("Error in Local Data Transfer Server: ", e);
+          log.warn("Error in Local Data Transfer Server: ", e);
         }
       }
     }

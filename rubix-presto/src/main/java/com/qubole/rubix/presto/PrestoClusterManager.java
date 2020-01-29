@@ -80,8 +80,6 @@ public class PrestoClusterManager extends ClusterManager
               URL allNodesRequest = getNodeUrl();
               URL failedNodesRequest = getFailedNodeUrl();
 
-              log.info("ABHISHEK ALL NODES URL " + allNodesRequest.toURI().toString());
-
               HttpURLConnection allHttpCon = (HttpURLConnection) allNodesRequest.openConnection();
               allHttpCon.setConnectTimeout(500); //ms
               allHttpCon.setRequestMethod("GET");
@@ -107,7 +105,7 @@ public class PrestoClusterManager extends ClusterManager
                   }
                 }
                 else {
-                  log.info(String.format("v1/node failed with code: setting this node as worker "));
+                  log.warn(String.format("v1/node failed with code: setting this node as worker "));
                   return ImmutableList.of();
                 }
               }
@@ -197,7 +195,7 @@ public class PrestoClusterManager extends ClusterManager
       return nodesCache.get("nodeList");
     }
     catch (ExecutionException e) {
-      log.info("Error fetching node list : ", e);
+      log.warn("Error fetching node list : ", e);
     }
     return null;
   }

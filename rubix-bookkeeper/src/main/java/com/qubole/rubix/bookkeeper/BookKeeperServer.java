@@ -170,7 +170,7 @@ public class BookKeeperServer extends Configured implements Tool
       log.error("Metrics reporters could not be closed", e);
     }
     server.stop();
-    log.debug("Bookkeeper Server Stopped");
+    log.info("Bookkeeper Server Stopped");
   }
 
   protected void removeMetrics()

@@ -71,18 +71,18 @@ public class NonLocalRequestChain extends ReadRequestChain
 
     try {
       this.bookKeeperClient = bookKeeperFactory.createBookKeeperClient(remoteNodeName, conf);
-      log.info(" Trying to getCacheStatus from : " + remoteNodeName + " for file : " + remoteFilePath
+      log.debug(" Trying to getCacheStatus from : " + remoteNodeName + " for file : " + remoteFilePath
               + " StartBlock : " + startBlock + " EndBlock : " + endBlock);
 
       CacheStatusRequest request = new CacheStatusRequest(remoteFilePath, fileSize, lastModified, startBlock, endBlock);
       isCached = bookKeeperClient.getCacheStatus(request);
-      log.info("Cache Status : " + isCached);
+      log.debug("Cache Status : " + isCached);
     }
     catch (Exception e) {
       if (strictMode) {
         throw Throwables.propagate(e);
       }
-      log.error("Could not get cache status from server " + Throwables.getStackTraceAsString(e));
+      log.error("Could not get cache status from server ", e);
     }
     finally {
       try {
@@ -92,7 +92,7 @@ public class NonLocalRequestChain extends ReadRequestChain
         }
       }
       catch (Exception e) {
-        log.error("Could not close BookKeeper client " + Throwables.getStackTraceAsString(e));
+        log.error("Could not close BookKeeper client ", e);
       }
     }
   }
@@ -151,7 +151,7 @@ public class NonLocalRequestChain extends ReadRequestChain
     int nonLocalReadBytes = 0;
     int directReadBytes = 0;
 
-    log.info("Executing NonLocalRequestChain ");
+    log.debug("Executing NonLocalRequestChain ");
 
     if (nonLocalReadRequestChain != null) {
       nonLocalReadRequestChain.lock();

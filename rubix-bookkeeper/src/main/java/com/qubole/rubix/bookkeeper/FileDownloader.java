@@ -91,7 +91,7 @@ class FileDownloader
       fs.initialize(path.toUri(), conf);
 
       String localPath = CacheUtil.getLocalPath(entry.getKey(), conf);
-      log.info("Processing Request for File : " + path.toString() + " LocalFile : " + localPath);
+      log.debug("Processing Request for File : " + path.toString() + " LocalFile : " + localPath);
       ByteBuffer directWriteBuffer = bufferPool.getBuffer(diskReadBufferSize);
 
       FileDownloadRequestChain requestChain = new FileDownloadRequestChain(bookKeeper, fs, localPath,
@@ -151,7 +151,7 @@ class FileDownloader
         }
       }
       catch (ExecutionException | InterruptedException ex) {
-        log.error(ex.getStackTrace());
+        log.error(ex);
         requestChain.cancel();
       }
     }

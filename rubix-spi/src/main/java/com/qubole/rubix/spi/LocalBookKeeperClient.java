@@ -40,7 +40,6 @@ public class LocalBookKeeperClient extends RetryingBookkeeperClient
   {
     super(transport, 1);
     this.bookKeeper = bookKeeper;
-    log.info(" ABHISHEK Local Bookkeeper client created");
   }
 
   @Override

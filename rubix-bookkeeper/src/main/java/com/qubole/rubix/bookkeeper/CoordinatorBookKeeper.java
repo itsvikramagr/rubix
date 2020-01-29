@@ -119,7 +119,7 @@ public class CoordinatorBookKeeper extends BookKeeper
           throws CoordinatorInitializationException
   {
     String clusterManagerClassName = CacheConfig.getClusterManagerClass(conf, clusterType);
-    log.info("Initializing cluster manager : " + clusterManagerClassName + " for cluster type " + clusterType);
+    log.debug("Initializing cluster manager : " + clusterManagerClassName + " for cluster type " + clusterType);
     ClusterManager manager = null;
 
     try {

@@ -238,7 +238,7 @@ public class CachingInputStream extends FSInputStream
       throws IOException, InterruptedException, ExecutionException
 
   {
-    log.info(String.format("Got Read, currentPos: %d currentBlock: %d bufferOffset: %d length: %d of file : %s", nextReadPosition, nextReadBlock, offset, length, CacheUtil.getLocalPath(remotePath, conf)));
+    log.debug(String.format("Got Read, currentPos: %d currentBlock: %d bufferOffset: %d length: %d of file : %s", nextReadPosition, nextReadBlock, offset, length, CacheUtil.getLocalPath(remotePath, conf)));
 
     if (nextReadPosition >= fileSize) {
       log.debug("Already at eof, returning");
@@ -292,7 +292,7 @@ public class CachingInputStream extends FSInputStream
       }
     });
 
-    log.info(String.format("Read %d bytes", sizeRead));
+    log.debug(String.format("Read %d bytes", sizeRead));
     if (sizeRead > 0) {
       nextReadPosition += sizeRead;
       setNextReadBlock();
@@ -341,7 +341,7 @@ public class CachingInputStream extends FSInputStream
       if (strictMode) {
         throw Throwables.propagate(e);
       }
-      log.info("Could not get cache status from server " + Throwables.getStackTraceAsString(e));
+      log.debug("Could not get cache status from server ", e);
     }
 
     int idx = 0;
