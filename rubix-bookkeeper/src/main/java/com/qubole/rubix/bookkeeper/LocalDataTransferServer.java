@@ -88,6 +88,8 @@ public class LocalDataTransferServer extends Configured implements Tool
   // In embedded mode, this is called directly with local bookKeeper object
   public static void startServer(Configuration conf, MetricRegistry metricRegistry, BookKeeper bookKeeper)
   {
+    conf = new Configuration(conf);
+    CacheConfig.setCacheDataEnabled(conf, false);
     metrics = metricRegistry;
     registerMetrics(conf);
 

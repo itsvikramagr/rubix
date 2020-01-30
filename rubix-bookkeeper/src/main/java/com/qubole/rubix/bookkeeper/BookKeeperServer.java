@@ -105,6 +105,9 @@ public class BookKeeperServer extends Configured implements Tool
 
   public void setupServer(Configuration conf, MetricRegistry metricsRegistry)
   {
+    conf = new Configuration(conf);
+    CacheConfig.setCacheDataEnabled(conf, false);
+
     this.metrics = metricsRegistry;
     this.bookKeeperMetrics = new BookKeeperMetrics(conf, metrics);
     registerMetrics(conf);
@@ -125,6 +128,8 @@ public class BookKeeperServer extends Configured implements Tool
 
   void startServer(Configuration conf, BookKeeper bookKeeper, BookKeeperMetrics bookKeeperMetrics)
   {
+    conf = new Configuration(conf);
+    CacheConfig.setCacheDataEnabled(conf, false);
     this.metrics = bookKeeperMetrics.getMetricsRegistry();
     this.bookKeeperMetrics = bookKeeperMetrics;
     registerMetrics(conf);

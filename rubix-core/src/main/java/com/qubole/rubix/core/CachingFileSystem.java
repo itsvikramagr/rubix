@@ -299,13 +299,13 @@ public abstract class CachingFileSystem<T extends FileSystem> extends FileSystem
             String[] name = new String[]{hostName};
             String[] host = new String[]{hostName};
             blockLocations[blockNumber++] = new BlockLocation(name, host, i, end - i);
-            log.debug(String.format("SplitSize %d BlockLocation %s %d %d %s ", splitSize, file.getPath().toString(), i, end - i, host[0]));
+            log.debug(String.format("BlockLocation %s %d %d %s ", file.getPath().toString(), i, end - i, host[0]));
           }
 
           return blockLocations;
         }
         catch (TException ex) {
-          log.error("Error while getting Node HostName. Fallingback on RemoteFileSystem. " + ex.toString());
+          log.error("Error while getting Node HostName. Fallingback on RemoteFileSystem. ", ex);
           return fs.getFileBlockLocations(file, start, len);
         }
       }
